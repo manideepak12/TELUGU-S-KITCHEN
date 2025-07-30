@@ -1,0 +1,31 @@
+/* Import Google Fonts */
+/* For Telugu */
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300..700;1,300..700&family=NTR&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap');
+/* For English */
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300..700;1,300..700&family=NTR&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Yeseva+One&display=swap');
+
+/* Basic body styling and default font application */
+body {
+  margin: 0;
+  /* Default font for the entire body - set to English font (Yeseva One) */
+  font-family: 'Yeseva One', serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Optional: For code blocks if you ever display them */
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}
+
+/* Keyframe animation for fade-in effect */
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Apply fade-in animation to elements with this class */
+.animate-fade-in {
+  animation: fade-in 1s ease-out forwards;
+}
