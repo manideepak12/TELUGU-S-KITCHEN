@@ -194,15 +194,124 @@ const productsData = rawProductsData.filter(
   (product) => product.category !== 'Order Based Foods'
 );
 
+// Cart Context - Simple implementation using React Context
+const CartContext = React.createContext();
+
+// Cart Provider Component
+export const CartProvider = ({ children }) => {
+  const [cartItems, setCartItems] = React.useState([]);
+
+  const addToCart = (product, variant) => {
+    const cartItem = {
+      id: `${product.id}-${variant.size}`,
+      productId: product.id,
+      name: product.name,
+      teluguName: product.teluguName,
+      image: product.image,
+      size: variant.size,
+      price: variant.price,
+      quantity: 1
+    };
+
+    setCartItems(prevItems => {
+      const existingItem = prevItems.find(item => item.id === cartItem.id);
+      if (existingItem) {
+        return prevItems.map(item =>
+          item.id === cartItem.id
+            ? { ...item, quantity: item.quantity + 1 }
+            : item
+        );
+      }
+      return [...prevItems, cartItem];
+    });
+  };
+
+  const removeFromCart = (itemId) => {
+    setCartItems(prevItems => prevItems.filter(item => item.id !== itemId));
+  };
+
+  const updateQuantity = (itemId, newQuantity) => {
+    if (newQuantity <= 0) {
+      removeFromCart(itemId);
+      return;
+    }
+    setCartItems(prevItems =>
+      prevItems.map(item =>
+        item.id === itemId ? { ...item, quantity: newQuantity } : item
+      )
+    );
+  };
+
+  const getCartTotal = () => {
+    return cartItems.reduce((total, item) => total + (item.price * item.quantity), 0);
+  };
+
+  const getCartItemCount = () => {
+    return cartItems.reduce((total, item) => total + item.quantity, 0);
+  };
+
+  return (
+    <CartContext.Provider value={{
+      cartItems,
+      addToCart,
+      removeFromCart,
+      updateQuantity,
+      getCartTotal,
+      getCartItemCount
+    }}>
+      {children}
+    </CartContext.Provider>
+  );
+};
+
+// Hook to use cart context
+const useCart = () => {
+  const context = React.useContext(CartContext);
+  if (!context) {
+    throw new Error('useCart must be used within a CartProvider');
+  }
+  return context;
+};
+
 // Product Card Component
 const ProductCard = ({ product }) => {
   const [selectedVariantIndex, setSelectedVariantIndex] = React.useState(0);
   const [isHovered, setIsHovered] = React.useState(false);
+  const [isAdding, setIsAdding] = React.useState(false);
+  const { addToCart, cartItems } = useCart();
 
   const currentVariant = product.variants[selectedVariantIndex];
+  
+  // Get quantity of current variant in cart
+  const cartItemId = `${product.id}-${currentVariant.size}`;
+  const cartItem = cartItems.find(item => item.id === cartItemId);
+  const quantityInCart = cartItem ? cartItem.quantity : 0;
+
+  const handleAddToCart = async (e) => {
+    e.stopPropagation();
+    setIsAdding(true);
+    
+    // Add to cart
+    addToCart(product, currentVariant);
+    
+    // Show feedback for a moment
+    setTimeout(() => {
+      setIsAdding(false);
+    }, 1000);
+  };
 
   return (
-    <div className="rounded-xl shadow-md hover:shadow-lg transition-shadow duration-300 overflow-hidden flex flex-col h-full" style={{backgroundColor: '#FFD54F'}}>
+    <div className="rounded-xl shadow-md hover:shadow-lg transition-shadow duration-300 overflow-hidden flex flex-col h-full relative" style={{backgroundColor: '#FFD54F'}}>
+      {/* Cart Indicator Badge */}
+      {quantityInCart > 0 && (
+        <div 
+          className="absolute top-2 right-2 z-10 w-6 h-6 rounded-full flex items-center justify-center text-white text-xs font-bold shadow-lg"
+          style={{backgroundColor: '#D62828'}}
+        >
+          {quantityInCart}
+        </div>
+      )}
+      
       {/* Image container */}
       <div
         className="relative w-full h-48 overflow-hidden"
@@ -262,7 +371,7 @@ const ProductCard = ({ product }) => {
           </div>
         )}
 
-        {/* Price and order section */}
+        {/* Price and add to cart section */}
         <div className="mt-auto border-t border-gray-100 pt-3">
           <div className="flex items-center justify-between">
             <div className="text-left">
@@ -273,8 +382,16 @@ const ProductCard = ({ product }) => {
                 / {currentVariant.size}
               </span>
             </div>
-            <button className="bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-lg text-sm transition-colors duration-200 shadow-sm">
-              Order
+            <button 
+              onClick={handleAddToCart}
+              disabled={isAdding}
+              className={`font-medium py-2 px-4 rounded-lg text-sm transition-all duration-200 shadow-sm ${
+                isAdding 
+                  ? 'bg-green-500 text-white cursor-not-allowed'
+                  : 'bg-green-600 hover:bg-green-700 text-white hover:shadow-md'
+              }`}
+            >
+              {isAdding ? '✓ Added' : 'Add to Cart'}
             </button>
           </div>
         </div>
@@ -335,3 +452,6 @@ export const Products = () => {
     </div>
   );
 };
+
+// Export the cart context and provider for use in other components
+export { CartContext, useCart };

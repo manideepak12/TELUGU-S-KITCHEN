@@ -1,5 +1,79 @@
 import React from 'react';
 
+// Image Slideshow Component
+const ImageSlideshow = () => {
+  const images = [
+    {
+      src: "https://res.cloudinary.com/duhabjmtf/image/upload/v1751303525/check_mktynr.png",
+      alt: "Telugu's Kitchen Logo",
+      fallback: "https://placehold.co/600x400/FFD700/000000?text=Telugu's+Kitchen"
+    },
+    {
+      src: "https://res.cloudinary.com/duhabjmtf/image/upload/c_pad,b_gen_fill,w_1200,h_800/v1753949669/ME_VIS_3D_vhyxt2.png",
+      alt: "MANI AND VISHAL",
+      fallback: "https://placehold.co/600x400/FFD700/000000?text=Traditional+Cuisine"
+    },
+    {
+      src: "https://res.cloudinary.com/duhabjmtf/image/upload/c_pad,b_gen_fill,w_1200,h_800/v1753951968/WOMEN_3D_icaloc.png",
+      alt: "MOTHERS",
+      fallback: "https://placehold.co/600x400/FFD700/000000?text=Authentic+Food"
+    }
+  ];
+
+  const [currentImageIndex, setCurrentImageIndex] = React.useState(0);
+
+  React.useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentImageIndex((prevIndex) => 
+        prevIndex === images.length - 1 ? 0 : prevIndex + 1
+      );
+    }, 5000); // 5 seconds
+
+    return () => clearInterval(interval);
+  }, [images.length]);
+
+  return (
+    <div className="relative w-full h-full">
+      {images.map((image, index) => (
+        <img
+          key={index}
+          src={image.src}
+          alt={image.alt}
+          className={`absolute inset-0 w-full h-full object-contain sm:object-cover transition-all duration-1000 ${
+            index === currentImageIndex 
+              ? 'opacity-100 scale-100' 
+              : 'opacity-0 scale-105'
+          }`}
+          style={{
+            objectPosition: 'center',
+            maxWidth: '100%',
+            maxHeight: '100%'
+          }}
+          onError={(e) => { 
+            e.target.onerror = null; 
+            e.target.src = image.fallback; 
+          }}
+        />
+      ))}
+      
+      {/* Slide Indicators */}
+      <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2 z-20">
+        {images.map((_, index) => (
+          <button
+            key={index}
+            onClick={() => setCurrentImageIndex(index)}
+            className={`w-2 h-2 sm:w-3 sm:h-3 rounded-full transition-all duration-300 ${
+              index === currentImageIndex 
+                ? 'bg-white scale-110 shadow-lg' 
+                : 'bg-white/60 hover:bg-white/80'
+            }`}
+          />
+        ))}
+      </div>
+    </div>
+  );
+};
+
 export const About = () => {
   // Add Material Symbols font loading
   React.useEffect(() => {
@@ -41,35 +115,35 @@ export const About = () => {
       <section className="py-12 sm:py-20">
         <div className="container mx-auto px-4">
           {/* Story Section */}
-          <div className="max-w-6xl mx-auto mb-16 sm:mb-24">
+          <div className="max-w-7xl mx-auto mb-16 sm:mb-24">
             <div className="rounded-3xl shadow-2xl overflow-hidden" style={{backgroundColor: '#FFD54F'}}>
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-0">
-                {/* Image Side */}
-                <div className="relative overflow-hidden h-64 sm:h-80 lg:h-auto">
-                  <img
-                    src="https://res.cloudinary.com/duhabjmtf/image/upload/v1751303525/check_mktynr.png"
-                    alt="Traditional Telugu Kitchen"
-                    className="w-full h-full object-cover transition-all duration-500 hover:scale-110"
-                    onError={(e) => { 
-                      e.target.onerror = null; 
-                      e.target.src = "https://placehold.co/600x400/FFD700/000000?text=Traditional+Kitchen"; 
-                    }}
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-r from-black/30 to-transparent"></div>
+              <div className="grid grid-cols-1 lg:grid-cols-5 gap-0">
+                {/* Image Side - Slideshow */}
+                <div className="lg:col-span-2 relative overflow-hidden h-80 sm:h-96 lg:h-auto lg:min-h-[500px]">
+                  <ImageSlideshow />
+                  <div className="absolute inset-0 bg-gradient-to-r from-black/20 to-transparent"></div>
                 </div>
 
                 {/* Content Side */}
-                <div className="p-8 sm:p-12 lg:p-16 flex flex-col justify-center">
+                <div className="lg:col-span-3 p-6 sm:p-8 lg:p-12 flex flex-col justify-center">
                   <div className="mb-6">
-                    <h2 className="text-3xl sm:text-4xl font-bold mb-4" style={{color: '#D62828', fontFamily: 'Yeseva One, serif'}}>
+                    <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-4" style={{color: '#D62828', fontFamily: 'Yeseva One, serif'}}>
                       Our Story
                     </h2>
-                    <p className="text-lg leading-relaxed mb-6" style={{color: '#545454', fontFamily: 'Frank Ruhl Libre, serif'}}>
-                      Welcome to Telugu's Kitchen, where culinary traditions meet modern tastes. We are passionate about bringing the authentic and vibrant flavors of Andhra and Telangana cuisine to your table.
-                    </p>
-                    <p className="text-lg leading-relaxed" style={{color: '#545454', fontFamily: 'Frank Ruhl Libre, serif'}}>
-                      Our journey began with a simple desire: to share the rich heritage of South Indian cooking, passed down through generations of loving hands and time-honored recipes.
-                    </p>
+                    <div className="text-sm sm:text-base lg:text-lg leading-relaxed space-y-4" style={{color: '#545454', fontFamily: 'Frank Ruhl Libre, serif'}}>
+                      <p>
+                        <strong>Telugu's Kitchen</strong> was born out of a heartfelt dream — to bring the warmth of home into every bite.
+                      </p>
+                      <p>
+                        Started by Two Food Passionate friends from Siddipet, this journey began in a small kitchen, guided by the hands of our mothers and the essence of tradition. What we create isn't just food — it's a reflection of love, care, and the memories tied to Telugu households.
+                      </p>
+                      <p>
+                        Built with passion, trust, and a deep respect for our roots, Telugu's Kitchen is a tribute to the flavors we grew up with and the people who made them.
+                      </p>
+                      <p>
+                        We're here to serve not just meals, but moments — lovingly prepared at home, and delivered with pride.
+                      </p>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -142,11 +216,10 @@ export const About = () => {
               
               <div className="space-y-6">
                 <p className="text-lg sm:text-xl leading-relaxed" style={{color: '#545454', fontFamily: 'Frank Ruhl Libre, serif'}}>
-                  Every dish at Telugu's Kitchen is prepared with the freshest, locally sourced ingredients, ensuring unparalleled taste and quality. From the fiery spices of our traditional curries to the comforting sweetness of our authentic desserts, each recipe is a testament to our commitment to authenticity and flavor.
+To preserve and celebrate the authentic flavors of Telangana by delivering homemade snacks and sweets made with care, tradition, and the warmth of mothers' hands — right from our kitchen to yours.
                 </p>
                 <p className="text-lg sm:text-xl leading-relaxed" style={{color: '#545454', fontFamily: 'Frank Ruhl Libre, serif'}}>
-                  We believe that food is not just sustenance, but an experience – a celebration of culture, family, and togetherness. Join us on a gastronomic adventure and discover the true essence of Telugu cuisine.
-                </p>
+We aim to build a community that cherishes real taste, supports local craftsmanship, and finds comfort in food that feels like home.                </p>
                 <div className="pt-6">
                   <div className="inline-flex items-center gap-3 px-8 py-4 rounded-full font-bold text-lg text-white shadow-xl" style={{backgroundColor: '#185E20'}}>
                     <span className="material-symbols-outlined" style={{fontSize: '24px'}}>

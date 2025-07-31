@@ -1,9 +1,11 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import { useCart } from '../pages/Products'; // Import cart hook
 
 export const Navbar = () => {
   const location = useLocation();
   const [isOpen, setIsOpen] = React.useState(false); // State for mobile menu toggle
+  const { getCartItemCount } = useCart(); // Get cart count
 
   return (
     <nav className="p-4 shadow-lg rounded-b-xl" style={{backgroundColor: '#FFB300'}}>
@@ -77,6 +79,26 @@ export const Navbar = () => {
                 onClick={() => setIsOpen(false)}
               >
                 Contact
+              </Link>
+            </li>
+            {/* Cart Link with Badge */}
+            <li>
+              <Link
+                to="/cart"
+                className={`block py-2 px-4 rounded-lg transition-colors duration-300 relative ${
+                  location.pathname === '/cart' ? 'bg-orange-700 text-white' : 'text-white hover:bg-orange-700 hover:text-white'
+                }`}
+                onClick={() => setIsOpen(false)}
+              >
+                Cart
+                {getCartItemCount() > 0 && (
+                  <span 
+                    className="absolute -top-1 -right-1 text-xs font-bold text-white rounded-full w-5 h-5 flex items-center justify-center shadow-md"
+                    style={{backgroundColor: '#D62828'}}
+                  >
+                    {getCartItemCount()}
+                  </span>
+                )}
               </Link>
             </li>
           </ul>

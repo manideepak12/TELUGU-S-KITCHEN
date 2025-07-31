@@ -65,12 +65,12 @@ export const Home = () => {
               </h1>
               <div className="w-20 sm:w-32 h-1 mx-auto mb-4 sm:mb-6 animate-pulse" style={{backgroundColor: '#D62828'}}></div>
               <p className="text-lg sm:text-2xl md:text-3xl font-medium px-4" style={{color: '#545454', fontFamily: 'Frank Ruhl Libre, serif'}}>
-                Traditionally Made • Telangana Foods
+                Traditionally Made - Telangana Foods
               </p>
             </div>
             
             <p className="text-lg sm:text-xl md:text-2xl max-w-4xl mx-auto leading-relaxed mb-8 sm:mb-12 animate-fade-in px-4" style={{color: '#545454', fontFamily: 'Frank Ruhl Libre, serif'}}>
-              Experience the rich heritage of Telangana cuisine with our authentic, 
+              Experience the rich heritage of Telangana Tastes with our authentic, 
               handcrafted traditional foods made from time-honored family recipes.
             </p>
 
