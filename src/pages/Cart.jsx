@@ -84,18 +84,18 @@ export const Cart = () => {
   }, []);
 
   // ==================== FORM HANDLERS ====================
-  const handleInputChange = useCallback((field, value) => {
-  setFormData(prev => ({ ...prev, [field]: value }));
-  
-  // Clear validation errors on input
-  if (field === 'customerName') {
-    setValidation(prev => ({ ...prev, isNameValid: true, showValidationMessage: false }));
-  }
-  if (field === 'address') {
-    setValidation(prev => ({ ...prev, isAddressValid: true, showValidationMessage: false }));
-  }
-}, []);
-
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+    
+    // Clear validation errors on input
+    if (name === 'customerName') {
+      setValidation(prev => ({ ...prev, isNameValid: true, showValidationMessage: false }));
+    }
+    if (name === 'address') {
+      setValidation(prev => ({ ...prev, isAddressValid: true, showValidationMessage: false }));
+    }
+  };
 
   const validateForm = useCallback(() => {
     const nameValid = formData.customerName.trim().length > 0;
@@ -358,8 +358,9 @@ export const Cart = () => {
           </label>
           <input
             type="text"
+            name="customerName"
             value={formData.customerName}
-            onChange={(e) => handleInputChange('customerName', e.target.value)}
+            onChange={handleInputChange}
             className={`w-full px-4 py-3 border-2 rounded-xl focus:outline-none transition-all duration-200 ${
               !validation.isNameValid 
                 ? 'border-red-300 bg-red-50 focus:border-red-400' 
@@ -380,8 +381,9 @@ export const Cart = () => {
             Delivery Address *
           </label>
           <textarea
+            name="address"
             value={formData.address}
-            onChange={(e) => handleInputChange('address', e.target.value)}
+            onChange={handleInputChange}
             rows="3"
             className={`w-full px-4 py-3 border-2 rounded-xl focus:outline-none resize-none transition-all duration-200 ${
               !validation.isAddressValid 
@@ -404,8 +406,9 @@ export const Cart = () => {
           </label>
           <input
             type="text"
+            name="city"
             value={formData.city}
-            onChange={(e) => handleInputChange('city', e.target.value)}
+            onChange={handleInputChange}
             className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-blue-400 transition-all duration-200 hover:border-gray-300"
             placeholder="Enter your city"
           />

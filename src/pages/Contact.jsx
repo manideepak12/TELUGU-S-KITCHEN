@@ -98,7 +98,7 @@ export const Contact = () => {
               {
                 icon: 'location_on',
                 title: 'Address',
-                info: '123 Food Street',
+                info: 'Shankar Nagar',
                 subInfo: 'Siddipet, Telangana'
               },
               {
@@ -160,93 +160,97 @@ export const Contact = () => {
             ))}
           </div>
 
-          {/* Delivery & Services Section */}
+          {/* Delivery & Services Section - Modified to reduce height */}
           <div className="max-w-6xl mx-auto">
-            {/* Main Delivery Highlight */}
+            {/* Main Delivery Highlight - Reduced height */}
             <div className="rounded-3xl shadow-2xl overflow-hidden mb-12" style={{backgroundColor: '#FFD54F'}}>
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-0">
-                {/* Delivery Info */}
-                <div className="p-8 sm:p-12 lg:p-16 flex flex-col justify-center text-center lg:text-left">
-                  <div className="mb-6">
-                    <div className="text-6xl mb-4">
-                      <span className="material-symbols-outlined" style={{fontSize: '64px', color: '#D62828'}}>
+                {/* Delivery Info - Made more compact */}
+                <div className="p-6 sm:p-8 lg:p-10 flex flex-col justify-center text-center lg:text-left">
+                  <div className="mb-4">
+                    <div className="text-5xl mb-3">
+                      <span className="material-symbols-outlined" style={{fontSize: '48px', color: '#D62828'}}>
                         delivery_dining
                       </span>
                     </div>
-                    <h2 className="text-3xl sm:text-4xl font-bold mb-4" style={{color: '#D62828', fontFamily: 'Yeseva One, serif'}}>
+                    <h2 className="text-2xl sm:text-3xl font-bold mb-3" style={{color: '#D62828', fontFamily: 'Yeseva One, serif'}}>
                       Home Delivery in Siddipet
                     </h2>
-                    <p className="text-lg mb-6" style={{color: '#545454', fontFamily: 'Frank Ruhl Libre, serif'}}>
+                    <p className="text-base mb-4" style={{color: '#545454', fontFamily: 'Frank Ruhl Libre, serif'}}>
                       Enjoy authentic Telugu traditional foods delivered fresh to your doorstep in Siddipet. 
-                      Experience the rich flavors of our heritage cuisine from the comfort of your home.
                     </p>
                   </div>
                   
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-center lg:justify-start gap-3">
-                      <span className="material-symbols-outlined" style={{fontSize: '24px', color: '#185E20'}}>
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-center lg:justify-start gap-2">
+                      <span className="material-symbols-outlined" style={{fontSize: '20px', color: '#185E20'}}>
                         local_shipping
                       </span>
-                      <span className="text-base font-semibold" style={{color: '#185E20', fontFamily: 'Frank Ruhl Libre, serif'}}>
+                      <span className="text-sm font-semibold" style={{color: '#185E20', fontFamily: 'Frank Ruhl Libre, serif'}}>
                         FREE DELIVERY IN SIDDIPET
                       </span>
                     </div>
-                    <div className="flex items-center justify-center lg:justify-start gap-3">
-                      <span className="material-symbols-outlined" style={{fontSize: '24px', color: '#185E20'}}>
+                    <div className="flex items-center justify-center lg:justify-start gap-2">
+                      <span className="material-symbols-outlined" style={{fontSize: '20px', color: '#185E20'}}>
                         currency_rupee
                       </span>
-                      <span className="text-base font-semibold" style={{color: '#185E20', fontFamily: 'Frank Ruhl Libre, serif'}}>
+                      <span className="text-sm font-semibold" style={{color: '#185E20', fontFamily: 'Frank Ruhl Libre, serif'}}>
                         AFFORDABLE PRICES
                       </span>
                     </div>
-                    <div className="flex items-center justify-center lg:justify-start gap-3">
-                      <span className="material-symbols-outlined" style={{fontSize: '24px', color: '#185E20'}}>
+                    <div className="flex items-center justify-center lg:justify-start gap-2">
+                      <span className="material-symbols-outlined" style={{fontSize: '20px', color: '#185E20'}}>
                         verified
                       </span>
-                      <span className="text-base font-semibold" style={{color: '#185E20', fontFamily: 'Frank Ruhl Libre, serif'}}>
+                      <span className="text-sm font-semibold" style={{color: '#185E20', fontFamily: 'Frank Ruhl Libre, serif'}}>
                         Fresh & Hot guaranteed
                       </span>
                     </div>
                   </div>
                 </div>
 
-                {/* Visual Element */}
-                <div className="relative p-8 sm:p-12 lg:p-16 flex items-center justify-center" style={{backgroundColor: 'rgba(255, 255, 255, 0.1)'}}>
-                  <div className="text-center">
-                    <div className="relative inline-block">
-                      <div className="text-8xl mb-4 animate-bounce">
-                        <span className="material-symbols-outlined" style={{fontSize: '96px', color: '#185E20'}}>
-                          restaurant
-                        </span>
-                      </div>
-                      <div className="absolute -top-2 -right-2 w-6 h-6 rounded-full animate-pulse" style={{backgroundColor: '#D62828'}}></div>
-                      <div className="absolute -bottom-2 -left-2 w-4 h-4 rounded-full animate-pulse" style={{backgroundColor: '#FFB300'}}></div>
+                {/* Video Element - Portrait orientation */}
+                <div className="relative p-4 flex items-center justify-center" style={{backgroundColor: 'rgba(255, 255, 255, 0.1)'}}>
+                  <div className="w-full max-w-xs mx-auto">
+                    <div className="relative rounded-2xl overflow-hidden shadow-2xl">
+                      <video
+                        autoPlay
+                        muted
+                        loop
+                        playsInline
+                        className="w-full h-auto object-cover"
+                        style={{
+                          maxHeight: '350px',
+                          aspectRatio: '9/16'
+                        }}
+                      >
+                        <source 
+                          src="https://res.cloudinary.com/duhabjmtf/video/upload/v1753981587/Sc-10_wlgi2t.mp4" 
+                          type="video/mp4" 
+                        />
+                        Your browser does not support the video tag.
+                      </video>
                     </div>
-                    <p className="text-xl font-bold mt-4" style={{color: '#D62828', fontFamily: 'Yeseva One, serif'}}>
-                      Traditional • Authentic • Delicious
-                    </p>
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* Call to Action */}
-            <div className="rounded-3xl shadow-2xl p-8 sm:p-12 text-center" style={{backgroundColor: 'rgba(255, 255, 255, 0.9)'}}>
-              <div className="mb-8">
-                <div className="text-6xl mb-6">
-                  <span className="material-symbols-outlined" style={{fontSize: '64px', color: '#D62828'}}>
+            {/* Call to Action - Made more compact */}
+            <div className="rounded-3xl shadow-2xl p-6 sm:p-8 text-center" style={{backgroundColor: 'rgba(255, 255, 255, 0.9)'}}>
+              <div className="mb-6">
+                <div className="text-5xl mb-4">
+                  <span className="material-symbols-outlined" style={{fontSize: '48px', color: '#D62828'}}>
                     favorite
                   </span>
                 </div>
-                <h2 className="text-3xl sm:text-4xl font-bold mb-4" style={{color: '#D62828', fontFamily: 'Yeseva One, serif'}}>
+                <h2 className="text-2xl sm:text-3xl font-bold mb-3" style={{color: '#D62828', fontFamily: 'Yeseva One, serif'}}>
                   Ready to Order?
                 </h2>
-                <p className="text-lg max-w-2xl mx-auto mb-8" style={{color: '#545454', fontFamily: 'Frank Ruhl Libre, serif'}}>
+                <p className="text-base max-w-2xl mx-auto mb-6" style={{color: '#545454', fontFamily: 'Frank Ruhl Libre, serif'}}>
                   Experience the authentic taste of Telugu tradition delivered fresh to your home.
                 </p>
               </div>
-
-              
             </div>
           </div>
         </div>
