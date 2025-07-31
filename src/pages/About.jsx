@@ -10,7 +10,7 @@ const ImageSlideshow = () => {
     },
     {
       src: "https://res.cloudinary.com/duhabjmtf/image/upload/c_pad,b_gen_fill,w_1200,h_800/v1753949669/ME_VIS_3D_vhyxt2.png",
-      alt: "MANI AND VISHAL",
+      alt: "Mani AND VISHAL",
       fallback: "https://placehold.co/600x400/FFD700/000000?text=Traditional+Cuisine"
     },
     {
