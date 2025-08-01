@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useCart } from './Products';
 
 /**
@@ -22,12 +22,9 @@ export const Cart = () => {
     city: ''
   });
 
-  // Validation state
-  const [validation, setValidation] = useState({
-    isNameValid: true,
-    isAddressValid: true,
-    showValidationMessage: false
-  });
+  // Validation state - simplified
+  const [validationErrors, setValidationErrors] = useState({});
+  const [showValidation, setShowValidation] = useState(false);
 
   // Confirmation dialog state
   const [confirmDialog, setConfirmDialog] = useState({
@@ -36,36 +33,78 @@ export const Cart = () => {
     message: '',
     onConfirm: null,
     onCancel: null,
-    type: 'warning' // 'warning', 'success', 'error'
+    type: 'warning'
   });
 
   // ==================== COMPUTED VALUES ====================
-  const isFreeShipping = formData.city.toLowerCase().includes('siddipet');
-  const shippingCharge = isFreeShipping ? 0 : 'Contact us for shipping charges';
+  const isFreeShipping = useMemo(() => 
+    formData.city.toLowerCase().includes('siddipet'), 
+    [formData.city]
+  );
+  
+  const shippingCharge = useMemo(() => 
+    isFreeShipping ? 0 : 'Contact us for shipping charges', 
+    [isFreeShipping]
+  );
 
   // ==================== EFFECTS ====================
   useEffect(() => {
+    const loadGoogleFonts = () => {
+      const fonts = [
+        "https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined",
+        "https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+      ];
+      
+      fonts.forEach(href => {
+        if (!document.querySelector(`link[href="${href}"]`)) {
+          const link = document.createElement('link');
+          link.rel = 'stylesheet';
+          link.href = href;
+          document.head.appendChild(link);
+        }
+      });
+    };
+    
     loadGoogleFonts();
   }, []);
 
   // ==================== UTILITY FUNCTIONS ====================
-  const loadGoogleFonts = () => {
-    const fonts = [
-      "https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined",
-      "https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
-    ];
-    
-    fonts.forEach(href => {
-      if (!document.querySelector(`link[href="${href}"]`)) {
-        const link = document.createElement('link');
-        link.rel = 'stylesheet';
-        link.href = href;
-        document.head.appendChild(link);
-      }
-    });
-  };
+  const formatPrice = useCallback((price) => `₹${price.toFixed(2)}`, []);
 
-  const formatPrice = (price) => `₹${price.toFixed(2)}`;
+  // ==================== FORM HANDLERS ====================
+  const handleInputChange = useCallback((e) => {
+    const { name, value } = e.target;
+    
+    setFormData(prev => ({ ...prev, [name]: value }));
+    
+    // Clear specific field error
+    setValidationErrors(prev => {
+      const newErrors = { ...prev };
+      delete newErrors[name];
+      return newErrors;
+    });
+    
+    // Hide validation message if no errors remain
+    setShowValidation(prev => prev && Object.keys(validationErrors).length > 1);
+  }, [validationErrors]);
+
+  const validateForm = useCallback(() => {
+    const errors = {};
+    
+    if (!formData.customerName.trim()) {
+      errors.customerName = 'Please enter your name';
+    }
+    
+    if (!formData.address.trim()) {
+      errors.address = 'Please enter delivery address';
+    }
+    
+    const hasErrors = Object.keys(errors).length > 0;
+    setValidationErrors(errors);
+    setShowValidation(hasErrors);
+    
+    return !hasErrors;
+  }, [formData.customerName, formData.address]);
 
   // ==================== CONFIRMATION DIALOG HELPERS ====================
   const showConfirmDialog = useCallback((title, message, onConfirm, type = 'warning') => {
@@ -83,33 +122,6 @@ export const Cart = () => {
     setConfirmDialog(prev => ({ ...prev, isOpen: false }));
   }, []);
 
-  // ==================== FORM HANDLERS ====================
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-    
-    // Clear validation errors on input
-    if (name === 'customerName') {
-      setValidation(prev => ({ ...prev, isNameValid: true, showValidationMessage: false }));
-    }
-    if (name === 'address') {
-      setValidation(prev => ({ ...prev, isAddressValid: true, showValidationMessage: false }));
-    }
-  };
-
-  const validateForm = useCallback(() => {
-    const nameValid = formData.customerName.trim().length > 0;
-    const addressValid = formData.address.trim().length > 0;
-    
-    setValidation({
-      isNameValid: nameValid,
-      isAddressValid: addressValid,
-      showValidationMessage: !nameValid || !addressValid
-    });
-    
-    return nameValid && addressValid;
-  }, [formData.customerName, formData.address]);
-
   // ==================== CART HANDLERS ====================
   const handleQuantityChange = useCallback((itemId, newQuantity) => {
     if (newQuantity < 1) return;
@@ -121,9 +133,7 @@ export const Cart = () => {
       'Empty Cart',
       'Are you sure you want to remove all items from your cart? This action cannot be undone.',
       () => {
-        cartItems.forEach(item => {
-          removeFromCart(item.id);
-        });
+        cartItems.forEach(item => removeFromCart(item.id));
         closeConfirmDialog();
       },
       'warning'
@@ -163,7 +173,7 @@ export const Cart = () => {
     message += `Please confirm this order. Thank you! 🙏`;
     
     return encodeURIComponent(message);
-  }, [formData, cartItems, getCartTotal, isFreeShipping]);
+  }, [formData, cartItems, getCartTotal, isFreeShipping, formatPrice]);
 
   const handleWhatsAppOrder = useCallback(() => {
     if (validateForm()) {
@@ -179,21 +189,20 @@ export const Cart = () => {
         'success'
       );
     } else {
-      const errorMessage = [];
-      if (!validation.isNameValid) errorMessage.push('Name');
-      if (!validation.isAddressValid) errorMessage.push('Address');
-      
+      const errorFields = Object.keys(validationErrors);
       showConfirmDialog(
         'Missing Information',
-        `Please fill in the following required fields:\n• ${errorMessage.join('\n• ')}`,
+        `Please fill in the following required fields:\n• ${errorFields.map(field => 
+          field === 'customerName' ? 'Name' : 'Address'
+        ).join('\n• ')}`,
         () => closeConfirmDialog(),
         'error'
       );
     }
-  }, [validateForm, validation, showConfirmDialog, closeConfirmDialog, generateWhatsAppMessage]);
+  }, [validateForm, validationErrors, showConfirmDialog, closeConfirmDialog, generateWhatsAppMessage]);
 
-  // ==================== RENDER COMPONENTS ====================
-  const ConfirmationDialog = () => {
+  // ==================== MEMOIZED COMPONENTS ====================
+  const ConfirmationDialog = useMemo(() => {
     if (!confirmDialog.isOpen) return null;
 
     const getIconAndColors = () => {
@@ -277,9 +286,9 @@ export const Cart = () => {
         </div>
       </div>
     );
-  };
+  }, [confirmDialog]);
 
-  const EmptyCartView = () => (
+  const EmptyCartView = useMemo(() => (
     <div className="min-h-screen" style={{ backgroundColor: '#FFB300', fontFamily: 'Inter, sans-serif' }}>
       <div className="container mx-auto px-4 py-16">
         <div className="max-w-md mx-auto text-center">
@@ -301,21 +310,21 @@ export const Cart = () => {
                 Start adding some delicious traditional foods to your cart
               </p>
             </div>
-            <a
-              href="/products"
+            <button
+              onClick={() => window.history.back()}
               className="inline-flex items-center gap-2 text-white font-medium py-3 px-6 rounded-xl transition-all duration-200 hover:opacity-90"
               style={{ backgroundColor: '#185E20' }}
             >
               <span className="material-symbols-outlined text-sm">storefront</span>
               Browse Products
-            </a>
+            </button>
           </div>
         </div>
       </div>
     </div>
-  );
+  ), []);
 
-  const CartHeader = () => (
+  const CartHeader = useMemo(() => (
     <div className="mb-8 text-center">
       <h1 className="text-3xl font-bold mb-2" style={{ color: '#D62828' }}>Shopping Cart</h1>
       <p className="text-gray-700 mb-4">
@@ -336,9 +345,10 @@ export const Cart = () => {
         </button>
       )}
     </div>
-  );
+  ), [cartItems.length, getCartItemCount, handleEmptyCart]);
 
-  const DeliveryInfoForm = () => (
+  // Memoized form component to prevent re-renders
+  const DeliveryInfoForm = useMemo(() => (
     <div className="bg-white rounded-2xl shadow-lg">
       <div className="px-6 py-4 border-b border-gray-200">
         <h2 className="text-lg font-medium text-gray-900 flex items-center gap-2">
@@ -362,16 +372,16 @@ export const Cart = () => {
             value={formData.customerName}
             onChange={handleInputChange}
             className={`w-full px-4 py-3 border-2 rounded-xl focus:outline-none transition-all duration-200 ${
-              !validation.isNameValid 
+              validationErrors.customerName
                 ? 'border-red-300 bg-red-50 focus:border-red-400' 
                 : 'border-gray-200 hover:border-gray-300 focus:border-blue-400'
             }`}
             placeholder="Enter your full name"
           />
-          {!validation.isNameValid && (
+          {validationErrors.customerName && (
             <p className="text-sm mt-1 flex items-center gap-1" style={{ color: '#D62828' }}>
               <span className="material-symbols-outlined text-sm">error</span>
-              Please enter your name
+              {validationErrors.customerName}
             </p>
           )}
         </div>
@@ -386,16 +396,16 @@ export const Cart = () => {
             onChange={handleInputChange}
             rows="3"
             className={`w-full px-4 py-3 border-2 rounded-xl focus:outline-none resize-none transition-all duration-200 ${
-              !validation.isAddressValid 
+              validationErrors.address
                 ? 'border-red-300 bg-red-50 focus:border-red-400' 
                 : 'border-gray-200 hover:border-gray-300 focus:border-blue-400'
             }`}
             placeholder="House number, street, area, landmark"
           />
-          {!validation.isAddressValid && (
+          {validationErrors.address && (
             <p className="text-sm mt-1 flex items-center gap-1" style={{ color: '#D62828' }}>
               <span className="material-symbols-outlined text-sm">error</span>
-              Please enter delivery address
+              {validationErrors.address}
             </p>
           )}
         </div>
@@ -435,9 +445,9 @@ export const Cart = () => {
         </div>
       </div>
     </div>
-  );
+  ), [formData, handleInputChange, validationErrors, isFreeShipping]);
 
-  const CartItemCard = ({ item }) => (
+  const CartItemCard = useCallback(({ item }) => (
     <div className="p-6 hover:bg-gray-50 transition-colors duration-200">
       <div className="flex items-start gap-4">
         <div className="flex-shrink-0">
@@ -512,9 +522,9 @@ export const Cart = () => {
         </div>
       </div>
     </div>
-  );
+  ), [formatPrice, handleQuantityChange, handleRemoveItem]);
 
-  const OrderSummary = () => (
+  const OrderSummary = useMemo(() => (
     <div className="bg-white rounded-2xl shadow-lg sticky top-6">
       <div className="px-6 py-4 border-b border-gray-200">
         <h2 className="text-lg font-medium text-gray-900 flex items-center gap-2">
@@ -567,7 +577,7 @@ export const Cart = () => {
       </div>
       
       <div className="p-6 pt-0">
-        {validation.showValidationMessage && (
+        {showValidation && Object.keys(validationErrors).length > 0 && (
           <div 
             className="mb-4 p-3 rounded-lg border-2"
             style={{
@@ -587,13 +597,13 @@ export const Cart = () => {
                   Please complete required fields:
                 </p>
                 <ul className="text-sm space-y-1" style={{ color: '#D62828' }}>
-                  {!validation.isNameValid && (
+                  {validationErrors.customerName && (
                     <li className="flex items-center gap-1">
                       <span className="w-1 h-1 rounded-full" style={{ backgroundColor: '#D62828' }}></span>
                       Full Name is required
                     </li>
                   )}
-                  {!validation.isAddressValid && (
+                  {validationErrors.address && (
                     <li className="flex items-center gap-1">
                       <span className="w-1 h-1 rounded-full" style={{ backgroundColor: '#D62828' }}></span>
                       Delivery Address is required
@@ -627,11 +637,11 @@ export const Cart = () => {
         </div>
       </div>
     </div>
-  );
+  ), [getCartItemCount, getCartTotal, formatPrice, isFreeShipping, shippingCharge, showValidation, validationErrors, handleWhatsAppOrder]);
 
   // ==================== MAIN RENDER ====================
   if (cartItems.length === 0) {
-    return <EmptyCartView />;
+    return EmptyCartView;
   }
 
   return (
@@ -643,11 +653,11 @@ export const Cart = () => {
         <div className="container mx-auto px-4 py-8">
           <div className="max-w-7xl mx-auto">
             
-            <CartHeader />
+            {CartHeader}
 
             <div className="grid lg:grid-cols-3 gap-6 lg:gap-8">
               <div className="lg:col-span-2 space-y-6">
-                <DeliveryInfoForm />
+                {DeliveryInfoForm}
 
                 <div className="bg-white rounded-2xl shadow-lg">
                   <div className="px-6 py-4 border-b border-gray-200">
@@ -670,8 +680,8 @@ export const Cart = () => {
                 </div>
 
                 <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
-                  <a
-                    href="/products"
+                  <button
+                    onClick={() => window.history.back()}
                     className="inline-flex items-center gap-2 font-medium transition-all duration-200 px-4 py-2 rounded-lg hover:opacity-80"
                     style={{ 
                       color: '#185E20',
@@ -680,7 +690,7 @@ export const Cart = () => {
                   >
                     <span className="material-symbols-outlined text-sm">arrow_back</span>
                     Continue Shopping
-                  </a>
+                  </button>
                   
                   <div className="text-sm text-gray-600 flex items-center gap-1">
                     <span 
@@ -695,7 +705,7 @@ export const Cart = () => {
               </div>
 
               <div className="lg:col-span-1">
-                <OrderSummary />
+                {OrderSummary}
               </div>
             </div>
           </div>
@@ -776,7 +786,7 @@ export const Cart = () => {
         `}</style>
       </div>
 
-      <ConfirmationDialog />
+      {ConfirmationDialog}
     </>
   );
 };
