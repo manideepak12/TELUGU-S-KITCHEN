@@ -265,7 +265,7 @@ export const CartProvider = ({ children }) => {
 };
 
 // Hook to use cart context
-const useCart = () => {
+export const useCart = () => {
   const context = React.useContext(CartContext);
   if (!context) {
     throw new Error('useCart must be used within a CartProvider');
@@ -415,7 +415,6 @@ const ProductCard = ({ product }) => {
                     updateQuantity(cartItemId, quantityInCart - 1);
                   }}
          
-
                   className="w-8 h-8 flex items-center justify-center text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-l-lg transition-colors duration-200 font-bold text-lg"
                 >
                   −
@@ -516,4 +515,4 @@ export const Products = () => {
 };
 
 // Export the cart context and provider for use in other components
-export { CartContext, useCart };
+export { CartContext };
