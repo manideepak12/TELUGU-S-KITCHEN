@@ -265,7 +265,7 @@ export const CartProvider = ({ children }) => {
 };
 
 // Hook to use cart context
-export const useCart = () => {
+const useCart = () => {
   const context = React.useContext(CartContext);
   if (!context) {
     throw new Error('useCart must be used within a CartProvider');
@@ -363,10 +363,23 @@ const ProductCard = ({ product }) => {
 
       {/* Product details with improved spacing */}
       <div className="p-5 flex-grow flex flex-col">
-        {/* Product names */}
+        {/* Product names with attractive color scheme */}
         <div className="text-center mb-4">
-          <h3 className="text-lg font-bold mb-1 text-gray-800 leading-tight">{product.name}</h3>
-          <p className="text-base text-gray-600" style={{fontFamily: 'NTR, sans-serif'}}>{product.teluguName}</p>
+          <h3 
+            className="text-lg font-bold mb-2 leading-tight"
+            style={{color: '#D62828'}}
+          >
+            {product.name}
+          </h3>
+          <p 
+            className="text-lg font-semibold"
+            style={{
+              fontFamily: 'NTR, sans-serif',
+              color: '#185E20'
+            }}
+          >
+            {product.teluguName}
+          </p>
         </div>
 
         {/* Variant selection with improved mobile styling */}
@@ -415,6 +428,7 @@ const ProductCard = ({ product }) => {
                     updateQuantity(cartItemId, quantityInCart - 1);
                   }}
          
+
                   className="w-8 h-8 flex items-center justify-center text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-l-lg transition-colors duration-200 font-bold text-lg"
                 >
                   −
@@ -515,4 +529,4 @@ export const Products = () => {
 };
 
 // Export the cart context and provider for use in other components
-export { CartContext };
+export { CartContext, useCart };
