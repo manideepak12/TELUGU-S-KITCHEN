@@ -71,6 +71,20 @@ export const Cart = () => {
   // ==================== UTILITY FUNCTIONS ====================
   const formatPrice = useCallback((price) => `₹${price.toFixed(2)}`, []);
 
+  // ==================== NAVIGATION HANDLERS ====================
+  const handleContinueShopping = useCallback(() => {
+    // Use history.pushState or a router navigation instead of window.location.href
+    // This prevents page reload and preserves cart state
+    if (window.history && window.history.pushState) {
+      window.history.pushState(null, '', '/products');
+      // Trigger a popstate event to notify any router listeners
+      window.dispatchEvent(new PopStateEvent('popstate', { state: null }));
+    } else {
+      // Fallback for older browsers - but this will still reload the page
+      window.location.href = "/products";
+    }
+  }, []);
+
   // ==================== FORM HANDLERS ====================
   const handleInputChange = useCallback((e) => {
     const { name, value } = e.target;
@@ -124,9 +138,13 @@ export const Cart = () => {
 
   // ==================== CART HANDLERS ====================
   const handleQuantityChange = useCallback((itemId, newQuantity) => {
-    if (newQuantity < 1) return;
+    // If the quantity drops to zero or below, remove the item
+    if (newQuantity <= 0) {
+      removeFromCart(itemId);
+      return;
+    }
     updateQuantity(itemId, newQuantity);
-  }, [updateQuantity]);
+  }, [updateQuantity, removeFromCart]);
 
   const handleEmptyCart = useCallback(() => {
     showConfirmDialog(
@@ -190,11 +208,13 @@ export const Cart = () => {
       );
     } else {
       const errorFields = Object.keys(validationErrors);
+      const missingFields = errorFields.map(field => 
+        field === 'customerName' ? 'Name' : 'Address'
+      );
+      
       showConfirmDialog(
         'Missing Information',
-        `Please fill in the following required fields:\n• ${errorFields.map(field => 
-          field === 'customerName' ? 'Name' : 'Address'
-        ).join('\n• ')}`,
+        `Please fill in the following required fields:\n\n${missingFields.map(field => `• ${field}`).join('\n')}`,
         () => closeConfirmDialog(),
         'error'
       );
@@ -238,11 +258,11 @@ export const Cart = () => {
         />
         
         <div className="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
-          <div className="relative transform overflow-hidden rounded-2xl bg-white text-left shadow-xl transition-all duration-300 w-full max-w-md">
-            <div className="bg-white px-6 pt-6 pb-4">
+          <div className="relative transform overflow-hidden rounded-2xl bg-white text-left shadow-xl transition-all duration-300 w-full max-w-md mx-4">
+            <div className="bg-white px-4 sm:px-6 pt-6 pb-4">
               <div className="flex items-start">
                 <div 
-                  className="mx-auto flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full"
+                  className="mx-auto sm:mx-0 flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full sm:mr-4"
                   style={{ backgroundColor: bgColor }}
                 >
                   <span 
@@ -252,20 +272,24 @@ export const Cart = () => {
                     {icon}
                   </span>
                 </div>
-                <div className="mt-3 text-center sm:ml-4 sm:mt-0 sm:text-left flex-1">
+                <div className="mt-3 text-center sm:mt-0 sm:text-left flex-1">
                   <h3 className="text-lg font-semibold leading-6 text-gray-900 mb-2">
                     {confirmDialog.title}
                   </h3>
                   <div className="mt-2">
-                    <p className="text-sm text-gray-600 whitespace-pre-line leading-relaxed">
-                      {confirmDialog.message}
-                    </p>
+                    <div className="text-sm text-gray-600 leading-relaxed">
+                      {confirmDialog.message.split('\n').map((line, index) => (
+                        <div key={index} className={index > 0 ? 'mt-1' : ''}>
+                          {line || <br />}
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
             
-            <div className="px-6 py-4 flex flex-col-reverse sm:flex-row sm:justify-end gap-3">
+            <div className="px-4 sm:px-6 py-4 flex flex-col-reverse sm:flex-row sm:justify-end gap-3">
               <button
                 type="button"
                 className="inline-flex w-full justify-center rounded-xl bg-white px-4 py-2.5 text-sm font-medium text-gray-700 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 transition-all duration-200 sm:w-auto"
@@ -311,7 +335,7 @@ export const Cart = () => {
               </p>
             </div>
             <button
-              onClick={() => window.history.back()}
+              onClick={handleContinueShopping}
               className="inline-flex items-center gap-2 text-white font-medium py-3 px-6 rounded-xl transition-all duration-200 hover:opacity-90"
               style={{ backgroundColor: '#185E20' }}
             >
@@ -322,7 +346,7 @@ export const Cart = () => {
         </div>
       </div>
     </div>
-  ), []);
+  ), [handleContinueShopping]);
 
   const CartHeader = useMemo(() => (
     <div className="mb-8 text-center">
@@ -557,8 +581,11 @@ export const Cart = () => {
         <hr className="border-gray-200" />
         
         <div className="flex justify-between items-center">
-          <span className="text-lg font-semibold text-gray-900">Total</span>
-          <span className="text-xl font-semibold text-gray-900">
+          <span className="text-lg font-bold text-gray-900">Total</span>
+          <span 
+            className="text-xl font-bold"
+            style={{ color: '#185E20' }}
+          >
             {isFreeShipping ? formatPrice(getCartTotal()) : 'TBD'}
           </span>
         </div>
@@ -587,26 +614,26 @@ export const Cart = () => {
           >
             <div className="flex items-start gap-2">
               <span 
-                className="material-symbols-outlined text-sm mt-0.5"
+                className="material-symbols-outlined text-sm mt-0.5 flex-shrink-0"
                 style={{ color: '#D62828' }}
               >
                 error
               </span>
-              <div>
+              <div className="flex-1">
                 <p className="font-medium text-sm mb-1" style={{ color: '#D62828' }}>
                   Please complete required fields:
                 </p>
                 <ul className="text-sm space-y-1" style={{ color: '#D62828' }}>
                   {validationErrors.customerName && (
-                    <li className="flex items-center gap-1">
-                      <span className="w-1 h-1 rounded-full" style={{ backgroundColor: '#D62828' }}></span>
-                      Full Name is required
+                    <li className="flex items-start gap-2">
+                      <span className="w-1 h-1 rounded-full mt-2 flex-shrink-0" style={{ backgroundColor: '#D62828' }}></span>
+                      <span>Full Name is required</span>
                     </li>
                   )}
                   {validationErrors.address && (
-                    <li className="flex items-center gap-1">
-                      <span className="w-1 h-1 rounded-full" style={{ backgroundColor: '#D62828' }}></span>
-                      Delivery Address is required
+                    <li className="flex items-start gap-2">
+                      <span className="w-1 h-1 rounded-full mt-2 flex-shrink-0" style={{ backgroundColor: '#D62828' }}></span>
+                      <span>Delivery Address is required</span>
                     </li>
                   )}
                 </ul>
@@ -681,7 +708,7 @@ export const Cart = () => {
 
                 <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
                   <button
-                    onClick={() => window.history.back()}
+                    onClick={handleContinueShopping}
                     className="inline-flex items-center gap-2 font-medium transition-all duration-200 px-4 py-2 rounded-lg hover:opacity-80"
                     style={{ 
                       color: '#185E20',
