@@ -7,6 +7,7 @@ import { Contact } from './pages/Contact';
 import { Cart } from './pages/Cart';
 import { Navbar } from './components/Navbar';
 import { Footer } from './components/Footer';
+import { Analytics } from '@vercel/analytics/react'; // ✅ Import Analytics
 import './style.css'; // Global styles
 
 const App = () => {
@@ -27,6 +28,7 @@ const App = () => {
           <Footer />
         </div>
       </Router>
+      <Analytics /> {/* ✅ Add Analytics here */}
     </CartProvider>
   );
 };
