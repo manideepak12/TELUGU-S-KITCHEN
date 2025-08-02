@@ -113,7 +113,7 @@ const rawProductsData = [
     id: 'ts3',
     name: 'Malida Muddalu',
     teluguName: 'మలిద ముద్దలు',
-    description: 'Sweet balls made from wheat flour, jaggery, and ghee, a healthy and tasty traditional treat.',
+    description: 'Sweet balls made from wheat flour, Sugar, and ghee, a healthy and tasty traditional treat.',
     category: 'Traditional Snacks',
     image: 'https://res.cloudinary.com/duhabjmtf/image/upload/c_pad,b_gen_fill,w_1600,h_1200/v1753899727/MALIDA_aiv32w.png',
     variants: [
